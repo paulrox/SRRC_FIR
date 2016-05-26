@@ -139,28 +139,28 @@ signal	mul_out_21	:	std_logic_vector(31	downto 0);
 signal	mul_out_22	:	std_logic_vector(31	downto 0);
 
 -- Adders output lines
-signal	add_out_0	:	std_logic_vector(32 downto 0);
-signal	add_out_1	:	std_logic_vector(32 downto 0);
-signal	add_out_2	:	std_logic_vector(32 downto 0);
-signal	add_out_3	:	std_logic_vector(32 downto 0);
-signal	add_out_4	:	std_logic_vector(32 downto 0);
-signal	add_out_5	:	std_logic_vector(32 downto 0);
-signal	add_out_6	:	std_logic_vector(32 downto 0);
-signal	add_out_7	:	std_logic_vector(32 downto 0);
-signal	add_out_8	:	std_logic_vector(32 downto 0);
-signal	add_out_9	:	std_logic_vector(32 downto 0);
-signal	add_out_10	:	std_logic_vector(32 downto 0);
-signal	add_out_11	:	std_logic_vector(32 downto 0);
-signal	add_out_12	:	std_logic_vector(32 downto 0);
-signal	add_out_13	:	std_logic_vector(32 downto 0);
-signal	add_out_14	:	std_logic_vector(32 downto 0);
-signal	add_out_15	:	std_logic_vector(32 downto 0);
-signal	add_out_16	:	std_logic_vector(32 downto 0);
-signal	add_out_17	:	std_logic_vector(32 downto 0);
-signal	add_out_18	:	std_logic_vector(32 downto 0);
-signal	add_out_19	:	std_logic_vector(32 downto 0);
-signal	add_out_20	:	std_logic_vector(32 downto 0);
-signal	add_out_21	:	std_logic_vector(32 downto 0);
+signal	add_out_0	:	std_logic_vector(31 downto 0);
+signal	add_out_1	:	std_logic_vector(31 downto 0);
+signal	add_out_2	:	std_logic_vector(31 downto 0);
+signal	add_out_3	:	std_logic_vector(31 downto 0);
+signal	add_out_4	:	std_logic_vector(31 downto 0);
+signal	add_out_5	:	std_logic_vector(31 downto 0);
+signal	add_out_6	:	std_logic_vector(31 downto 0);
+signal	add_out_7	:	std_logic_vector(31 downto 0);
+signal	add_out_8	:	std_logic_vector(31 downto 0);
+signal	add_out_9	:	std_logic_vector(31 downto 0);
+signal	add_out_10	:	std_logic_vector(31 downto 0);
+signal	add_out_11	:	std_logic_vector(31 downto 0);
+signal	add_out_12	:	std_logic_vector(31 downto 0);
+signal	add_out_13	:	std_logic_vector(31 downto 0);
+signal	add_out_14	:	std_logic_vector(31 downto 0);
+signal	add_out_15	:	std_logic_vector(31 downto 0);
+signal	add_out_16	:	std_logic_vector(31 downto 0);
+signal	add_out_17	:	std_logic_vector(31 downto 0);
+signal	add_out_18	:	std_logic_vector(31 downto 0);
+signal	add_out_19	:	std_logic_vector(31 downto 0);
+signal	add_out_20	:	std_logic_vector(31 downto 0);
+signal	add_out_21	:	std_logic_vector(31 downto 0);
 
 begin
 
@@ -304,7 +304,7 @@ mul_out_22 <= std_logic_vector(signed(dff_out_21) * signed(c22));
 
 -- Adder stage
 
-add_out_0 <=	std_logic_vector(resize(signed(mul_out_0) + signed(mul_out_1), 33));
+add_out_0 <=	std_logic_vector(signed(mul_out_0) + signed(mul_out_1));
 add_out_1 <=    std_logic_vector(signed(add_out_0) + signed(mul_out_2));
 add_out_2 <=    std_logic_vector(signed(add_out_1) + signed(mul_out_3));
 add_out_3 <=    std_logic_vector(signed(add_out_2) + signed(mul_out_4));
@@ -329,7 +329,7 @@ add_out_21 <=	std_logic_vector(signed(add_out_20) + signed(mul_out_22));
 
 -- Output update
 
-y <= add_out_21(32 downto 17);
+y <= add_out_21(31 downto 16);
 
 	
 end fir_srrc_bhv;

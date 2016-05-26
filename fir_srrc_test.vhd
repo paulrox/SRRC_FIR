@@ -65,7 +65,7 @@ test_proc:	process(clk)
 		when 100 	=>	reset	<= '0';
 		when 400	=>	reset	<= '1';
 		when 460	=>	reset	<= '0';
-		when 600	=>	test_x	<= "0111111111111111";
+		when 600	=>	test_x	<= "0100000000000000";
 		--when 603	=>	test_x	<= "0000000000000000";
 		when (TestLen - 1) => testing <= False;
 		when others => null;
