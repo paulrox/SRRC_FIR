@@ -31,7 +31,7 @@ entity fir_srrc is
 		clk		:	in	std_logic;
 		reset	:	in	std_logic;
 		x		:	in	std_logic_vector(15 downto 0);
-		y 		:	out	std_logic_vector(15 downto 0)
+		y 		:	out	std_logic_vector(31 downto 0)
 	);
 end fir_srrc;
 
@@ -53,17 +53,6 @@ constant c8		:	signed(15 downto 0)	:=	to_signed(2569, 16);
 constant c9		:	signed(15 downto 0)	:=	to_signed(9479, 16);
 constant c10	:	signed(15 downto 0)	:=	to_signed(15966, 16);
 constant c11	:	signed(15 downto 0)	:=	to_signed(18622, 16);
-constant c12	:	signed(15 downto 0)	:=	to_signed(15966, 16);
-constant c13	:	signed(15 downto 0)	:=	to_signed(9479, 16);
-constant c14	:	signed(15 downto 0)	:=	to_signed(2569, 16);
-constant c15	:	signed(15 downto 0)	:=	to_signed(-1739, 16);
-constant c16	:	signed(15 downto 0)	:=	to_signed(-2570, 16);
-constant c17	:	signed(15 downto 0)	:=	to_signed(-1229, 16);
-constant c18	:	signed(15 downto 0)	:=	to_signed(253, 16);
-constant c19	:	signed(15 downto 0)	:=	to_signed(694, 16); 
-constant c20	:	signed(15 downto 0)	:=	to_signed(253, 16);
-constant c21	:	signed(15 downto 0)	:=	to_signed(-246, 16);
-constant c22	:	signed(15 downto 0)	:=	to_signed(-271, 16);
 
 -- Registers input lines
 signal	dff_in_0	:	std_logic_vector(15 downto 0);
@@ -126,41 +115,22 @@ signal	mul_out_8	:	std_logic_vector(31	downto 0);
 signal	mul_out_9	:	std_logic_vector(31	downto 0);
 signal	mul_out_10	:	std_logic_vector(31	downto 0);
 signal	mul_out_11	:	std_logic_vector(31	downto 0);
-signal	mul_out_12	:	std_logic_vector(31	downto 0);
-signal	mul_out_13	:	std_logic_vector(31	downto 0);
-signal	mul_out_14	:	std_logic_vector(31	downto 0);
-signal	mul_out_15	:	std_logic_vector(31	downto 0);
-signal	mul_out_16	:	std_logic_vector(31	downto 0);
-signal	mul_out_17	:	std_logic_vector(31	downto 0);
-signal	mul_out_18	:	std_logic_vector(31	downto 0);
-signal	mul_out_19	:	std_logic_vector(31	downto 0);
-signal	mul_out_20	:	std_logic_vector(31	downto 0);
-signal	mul_out_21	:	std_logic_vector(31	downto 0);
-signal	mul_out_22	:	std_logic_vector(31	downto 0);
 
 -- Adders output lines
-signal	add_out_0	:	std_logic_vector(31 downto 0);
-signal	add_out_1	:	std_logic_vector(31 downto 0);
-signal	add_out_2	:	std_logic_vector(31 downto 0);
-signal	add_out_3	:	std_logic_vector(31 downto 0);
-signal	add_out_4	:	std_logic_vector(31 downto 0);
-signal	add_out_5	:	std_logic_vector(31 downto 0);
-signal	add_out_6	:	std_logic_vector(31 downto 0);
-signal	add_out_7	:	std_logic_vector(31 downto 0);
-signal	add_out_8	:	std_logic_vector(31 downto 0);
-signal	add_out_9	:	std_logic_vector(31 downto 0);
-signal	add_out_10	:	std_logic_vector(31 downto 0);
-signal	add_out_11	:	std_logic_vector(31 downto 0);
-signal	add_out_12	:	std_logic_vector(31 downto 0);
-signal	add_out_13	:	std_logic_vector(31 downto 0);
-signal	add_out_14	:	std_logic_vector(31 downto 0);
-signal	add_out_15	:	std_logic_vector(31 downto 0);
-signal	add_out_16	:	std_logic_vector(31 downto 0);
-signal	add_out_17	:	std_logic_vector(31 downto 0);
-signal	add_out_18	:	std_logic_vector(31 downto 0);
-signal	add_out_19	:	std_logic_vector(31 downto 0);
-signal	add_out_20	:	std_logic_vector(31 downto 0);
-signal	add_out_21	:	std_logic_vector(31 downto 0);
+signal	add_out_0	:	std_logic_vector(15 downto 0);
+signal	add_out_1	:	std_logic_vector(15 downto 0);
+signal	add_out_2	:	std_logic_vector(15 downto 0);
+signal	add_out_3	:	std_logic_vector(15 downto 0);
+signal	add_out_4	:	std_logic_vector(15 downto 0);
+signal	add_out_5	:	std_logic_vector(15 downto 0);
+signal	add_out_6	:	std_logic_vector(15 downto 0);
+signal	add_out_7	:	std_logic_vector(15 downto 0);
+signal	add_out_8	:	std_logic_vector(15 downto 0);
+signal	add_out_9	:	std_logic_vector(15 downto 0);
+signal	add_out_10	:	std_logic_vector(15 downto 0);
+
+-- Last adder output line
+signal	add_last	:	std_logic_vector(31 downto 0);
 
 begin
 
@@ -275,61 +245,49 @@ dff_in_21 <= dff_out_20;
 dff_map_21:	entity work.dff_N(dff_N_bhv)
 			generic map(N=>16)
 			port map(d=>dff_in_21, clk=>clk, reset=>reset, q=>dff_out_21);
-			
--- Multiplication stages
-
-mul_out_0 <= std_logic_vector(signed(x) * signed(c0));
-mul_out_1 <= std_logic_vector(signed(dff_out_0) * signed(c1));
-mul_out_2 <= std_logic_vector(signed(dff_out_1) * signed(c2));
-mul_out_3 <= std_logic_vector(signed(dff_out_2) * signed(c3));
-mul_out_4 <= std_logic_vector(signed(dff_out_3) * signed(c4));
-mul_out_5 <= std_logic_vector(signed(dff_out_4) * signed(c5));
-mul_out_6 <= std_logic_vector(signed(dff_out_5) * signed(c6));
-mul_out_7 <= std_logic_vector(signed(dff_out_6) * signed(c7));
-mul_out_8 <= std_logic_vector(signed(dff_out_7) * signed(c8));
-mul_out_9 <= std_logic_vector(signed(dff_out_8) * signed(c9));
-mul_out_10 <= std_logic_vector(signed(dff_out_9) * signed(c10));
-mul_out_11 <= std_logic_vector(signed(dff_out_10) * signed(c11));
-mul_out_12 <= std_logic_vector(signed(dff_out_11) * signed(c12));
-mul_out_13 <= std_logic_vector(signed(dff_out_12) * signed(c13));
-mul_out_14 <= std_logic_vector(signed(dff_out_13) * signed(c14));
-mul_out_15 <= std_logic_vector(signed(dff_out_14) * signed(c15));
-mul_out_16 <= std_logic_vector(signed(dff_out_15) * signed(c16));
-mul_out_17 <= std_logic_vector(signed(dff_out_16) * signed(c17));
-mul_out_18 <= std_logic_vector(signed(dff_out_17) * signed(c18));
-mul_out_19 <= std_logic_vector(signed(dff_out_18) * signed(c19));
-mul_out_20 <= std_logic_vector(signed(dff_out_19) * signed(c20));
-mul_out_21 <= std_logic_vector(signed(dff_out_20) * signed(c21));
-mul_out_22 <= std_logic_vector(signed(dff_out_21) * signed(c22));
 
 -- Adder stage
 
-add_out_0 <=	std_logic_vector(signed(mul_out_0) + signed(mul_out_1));
-add_out_1 <=    std_logic_vector(signed(add_out_0) + signed(mul_out_2));
-add_out_2 <=    std_logic_vector(signed(add_out_1) + signed(mul_out_3));
-add_out_3 <=    std_logic_vector(signed(add_out_2) + signed(mul_out_4));
-add_out_4 <=    std_logic_vector(signed(add_out_3) + signed(mul_out_5));
-add_out_5 <=    std_logic_vector(signed(add_out_4) + signed(mul_out_6));
-add_out_6 <=    std_logic_vector(signed(add_out_5) + signed(mul_out_7));
-add_out_7 <=    std_logic_vector(signed(add_out_6) + signed(mul_out_8));
-add_out_8 <=    std_logic_vector(signed(add_out_7) + signed(mul_out_9));
-add_out_9 <=    std_logic_vector(signed(add_out_8) + signed(mul_out_10));
-add_out_10 <=	std_logic_vector(signed(add_out_9) + signed(mul_out_11));
-add_out_11 <=   std_logic_vector(signed(add_out_10) + signed(mul_out_12));
-add_out_12 <=   std_logic_vector(signed(add_out_11) + signed(mul_out_13));
-add_out_13 <=   std_logic_vector(signed(add_out_12) + signed(mul_out_14));
-add_out_14 <=   std_logic_vector(signed(add_out_13) + signed(mul_out_15));
-add_out_15 <=   std_logic_vector(signed(add_out_14) + signed(mul_out_16));
-add_out_16 <=   std_logic_vector(signed(add_out_15) + signed(mul_out_17));
-add_out_17 <=   std_logic_vector(signed(add_out_16) + signed(mul_out_18));
-add_out_18 <=   std_logic_vector(signed(add_out_17) + signed(mul_out_19));
-add_out_19 <=   std_logic_vector(signed(add_out_18) + signed(mul_out_20));
-add_out_20 <=	std_logic_vector(signed(add_out_19) + signed(mul_out_21));
-add_out_21 <=	std_logic_vector(signed(add_out_20) + signed(mul_out_22));  
+add_out_0 <=	std_logic_vector(signed(dff_out_0) + signed(dff_out_21));
+add_out_1 <=    std_logic_vector(signed(dff_out_1) + signed(dff_out_20));
+add_out_2 <=    std_logic_vector(signed(dff_out_2) + signed(dff_out_19));
+add_out_3 <=    std_logic_vector(signed(dff_out_3) + signed(dff_out_18));
+add_out_4 <=    std_logic_vector(signed(dff_out_4) + signed(dff_out_17));
+add_out_5 <=    std_logic_vector(signed(dff_out_5) + signed(dff_out_16));
+add_out_6 <=    std_logic_vector(signed(dff_out_6) + signed(dff_out_15));
+add_out_7 <=    std_logic_vector(signed(dff_out_7) + signed(dff_out_14));
+add_out_8 <=    std_logic_vector(signed(dff_out_8) + signed(dff_out_13));
+add_out_9 <=    std_logic_vector(signed(dff_out_9) + signed(dff_out_12));
+add_out_10 <=	std_logic_vector(signed(dff_out_10) + signed(dff_out_11)); 
+			
+			
+-- Multiplication stages
+
+mul_out_0 <= std_logic_vector(signed(add_out_0) * signed(c0));
+mul_out_1 <= std_logic_vector(signed(add_out_1) * signed(c1));
+mul_out_2 <= std_logic_vector(signed(add_out_2) * signed(c2));
+mul_out_3 <= std_logic_vector(signed(add_out_3) * signed(c3));
+mul_out_4 <= std_logic_vector(signed(add_out_4) * signed(c4));
+mul_out_5 <= std_logic_vector(signed(add_out_5) * signed(c5));
+mul_out_6 <= std_logic_vector(signed(add_out_6) * signed(c6));
+mul_out_7 <= std_logic_vector(signed(add_out_7) * signed(c7));
+mul_out_8 <= std_logic_vector(signed(add_out_8) * signed(c8));
+mul_out_9 <= std_logic_vector(signed(add_out_9) * signed(c9));
+mul_out_10 <= std_logic_vector(signed(add_out_10) * signed(c10));
+mul_out_11 <= std_logic_vector(signed(dff_out_10) * signed(c11));
+
+-- Final adder stage
+
+add_last <= std_logic_vector(signed(mul_out_0) +	signed(mul_out_1) +
+							signed(mul_out_2) + signed(mul_out_3) +
+							signed(mul_out_4) + signed(mul_out_5) +
+							signed(mul_out_6) + signed(mul_out_7) +
+							signed(mul_out_8) + signed(mul_out_9) +
+							signed(mul_out_10) + signed(mul_out_11));
 
 -- Output update
 
-y <= add_out_21(31 downto 16);
+y <= std_logic_vector(shift_right(signed(add_last), 2));
 
 	
 end fir_srrc_bhv;
