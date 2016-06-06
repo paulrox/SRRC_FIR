@@ -31,7 +31,7 @@ entity fir_srrc is
 		clk		:	in	std_logic;
 		reset	:	in	std_logic;
 		x		:	in	std_logic_vector(15 downto 0);
-		y 		:	out	std_logic_vector(31 downto 0)
+		y 		:	out	std_logic_vector(15 downto 0)
 	);
 end fir_srrc;
 
@@ -40,254 +40,97 @@ end fir_srrc;
 architecture fir_srrc_bhv of fir_srrc is
 
 -- Coefficients definition
-
-constant c0		:	signed(15 downto 0)	:=	to_signed(-271, 16);
-constant c1		:	signed(15 downto 0)	:=	to_signed(-246, 16);
-constant c2		:	signed(15 downto 0)	:=	to_signed(253, 16);
-constant c3		:	signed(15 downto 0)	:=	to_signed(694, 16);
-constant c4		:	signed(15 downto 0)	:=	to_signed(253, 16);
-constant c5		:	signed(15 downto 0)	:=	to_signed(-1229, 16);
-constant c6		:	signed(15 downto 0)	:=	to_signed(-2570, 16);
-constant c7		:	signed(15 downto 0)	:=	to_signed(-1739, 16);
-constant c8		:	signed(15 downto 0)	:=	to_signed(2569, 16);
-constant c9		:	signed(15 downto 0)	:=	to_signed(9479, 16);
-constant c10	:	signed(15 downto 0)	:=	to_signed(15966, 16);
-constant c11	:	signed(15 downto 0)	:=	to_signed(18622, 16);
+type coeff is array (0 to 11) of signed(15 downto 0);
+constant c		:	coeff := (	to_signed(-271, 16),
+								to_signed(-246, 16),
+								to_signed(253, 16),
+								to_signed(694, 16),
+								to_signed(253, 16),
+								to_signed(-1229, 16),
+								to_signed(-2570, 16),
+								to_signed(-1739, 16),
+								to_signed(2569, 16),
+								to_signed(9479, 16),
+								to_signed(15966, 16),
+								to_signed(18622, 16));
 
 -- Registers input lines
-signal	dff_in_0	:	std_logic_vector(15 downto 0);
-signal	dff_in_1	:	std_logic_vector(15 downto 0);
-signal	dff_in_2	:	std_logic_vector(15 downto 0);
-signal	dff_in_3	:	std_logic_vector(15 downto 0);
-signal	dff_in_4	:	std_logic_vector(15 downto 0);
-signal	dff_in_5	:	std_logic_vector(15 downto 0);
-signal	dff_in_6	:	std_logic_vector(15 downto 0);
-signal	dff_in_7	:	std_logic_vector(15 downto 0);
-signal	dff_in_8	:	std_logic_vector(15 downto 0);
-signal	dff_in_9	:	std_logic_vector(15 downto 0);
-signal	dff_in_10	:	std_logic_vector(15 downto 0);
-signal	dff_in_11	:	std_logic_vector(15 downto 0);
-signal	dff_in_12	:	std_logic_vector(15 downto 0);
-signal	dff_in_13	:	std_logic_vector(15 downto 0);
-signal	dff_in_14	:	std_logic_vector(15 downto 0);
-signal	dff_in_15	:	std_logic_vector(15 downto 0);
-signal	dff_in_16	:	std_logic_vector(15 downto 0);
-signal	dff_in_17	:	std_logic_vector(15 downto 0);
-signal	dff_in_18	:	std_logic_vector(15 downto 0);
-signal	dff_in_19	:	std_logic_vector(15 downto 0);
-signal	dff_in_20	:	std_logic_vector(15 downto 0);
-signal	dff_in_21	:	std_logic_vector(15 downto 0);
+type dff_input_array is array (0 to 21) of std_logic_vector(15 downto 0);
+signal	dff_in		:	dff_input_array;
 
 -- Registers output lines
-signal	dff_out_0	:	std_logic_vector(15 downto 0);
-signal	dff_out_1	:	std_logic_vector(15 downto 0);
-signal	dff_out_2	:	std_logic_vector(15 downto 0);
-signal	dff_out_3	:	std_logic_vector(15 downto 0);
-signal	dff_out_4	:	std_logic_vector(15 downto 0);
-signal	dff_out_5	:	std_logic_vector(15 downto 0);
-signal	dff_out_6	:	std_logic_vector(15 downto 0);
-signal	dff_out_7	:	std_logic_vector(15 downto 0);
-signal	dff_out_8	:	std_logic_vector(15 downto 0);
-signal	dff_out_9	:	std_logic_vector(15 downto 0);
-signal	dff_out_10	:	std_logic_vector(15 downto 0);
-signal	dff_out_11	:	std_logic_vector(15 downto 0);
-signal	dff_out_12	:	std_logic_vector(15 downto 0);
-signal	dff_out_13	:	std_logic_vector(15 downto 0);
-signal	dff_out_14	:	std_logic_vector(15 downto 0);
-signal	dff_out_15	:	std_logic_vector(15 downto 0);
-signal	dff_out_16	:	std_logic_vector(15 downto 0);
-signal	dff_out_17	:	std_logic_vector(15 downto 0);
-signal	dff_out_18	:	std_logic_vector(15 downto 0);
-signal	dff_out_19	:	std_logic_vector(15 downto 0);
-signal	dff_out_20	:	std_logic_vector(15 downto 0);
-signal	dff_out_21	:	std_logic_vector(15 downto 0);
+type dff_output_array is array (0 to 21) of std_logic_vector(15 downto 0);
+signal	dff_out		:	dff_output_array;
 
--- Multiplication stages output lines
-signal	mul_out_0	:	std_logic_vector(31	downto 0);
-signal	mul_out_1	:	std_logic_vector(31	downto 0);
-signal	mul_out_2	:	std_logic_vector(31	downto 0);
-signal	mul_out_3	:	std_logic_vector(31	downto 0);
-signal	mul_out_4	:	std_logic_vector(31	downto 0);
-signal	mul_out_5	:	std_logic_vector(31	downto 0);
-signal	mul_out_6	:	std_logic_vector(31	downto 0);
-signal	mul_out_7	:	std_logic_vector(31	downto 0);
-signal	mul_out_8	:	std_logic_vector(31	downto 0);
-signal	mul_out_9	:	std_logic_vector(31	downto 0);
-signal	mul_out_10	:	std_logic_vector(31	downto 0);
-signal	mul_out_11	:	std_logic_vector(31	downto 0);
+-- Multiplication stages output lines 
+type mul_out_array is array (0 to 11) of std_logic_vector(31 downto 0);
+signal	mul_out		:	mul_out_array;
 
 -- Adders output lines
-signal	add_out_0	:	std_logic_vector(15 downto 0);
-signal	add_out_1	:	std_logic_vector(15 downto 0);
-signal	add_out_2	:	std_logic_vector(15 downto 0);
-signal	add_out_3	:	std_logic_vector(15 downto 0);
-signal	add_out_4	:	std_logic_vector(15 downto 0);
-signal	add_out_5	:	std_logic_vector(15 downto 0);
-signal	add_out_6	:	std_logic_vector(15 downto 0);
-signal	add_out_7	:	std_logic_vector(15 downto 0);
-signal	add_out_8	:	std_logic_vector(15 downto 0);
-signal	add_out_9	:	std_logic_vector(15 downto 0);
-signal	add_out_10	:	std_logic_vector(15 downto 0);
+type add_out_array is array (0 to 10) of std_logic_vector(15 downto 0);
+signal	add_out		:	add_out_array;
 
 -- Last adder output line
 signal	add_last	:	std_logic_vector(31 downto 0);
 
 begin
 
--- Registers mapping
-
-dff_in_0 <= x;
-dff_map_0:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_0, clk=>clk, reset=>reset, q=>dff_out_0);
-			
-dff_in_1 <= dff_out_0;
-dff_map_1:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_1, clk=>clk, reset=>reset, q=>dff_out_1);
-
-dff_in_2 <= dff_out_1;
-dff_map_2:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_2, clk=>clk, reset=>reset, q=>dff_out_2);
-
-dff_in_3 <= dff_out_2;
-dff_map_3:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_3, clk=>clk, reset=>reset, q=>dff_out_3);
-
-dff_in_4 <= dff_out_3;			
-dff_map_4:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_4, clk=>clk, reset=>reset, q=>dff_out_4);
-
-dff_in_5 <= dff_out_4;			
-dff_map_5:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_5, clk=>clk, reset=>reset, q=>dff_out_5);
-
-dff_in_6 <= dff_out_5;			
-dff_map_6:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_6, clk=>clk, reset=>reset, q=>dff_out_6);
-
-dff_in_7 <= dff_out_6;			
-dff_map_7:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_7, clk=>clk, reset=>reset, q=>dff_out_7);
-
-dff_in_8 <= dff_out_7;			
-dff_map_8:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_8, clk=>clk, reset=>reset, q=>dff_out_8);
-
-dff_in_9 <= dff_out_8;			
-dff_map_9:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_9, clk=>clk, reset=>reset, q=>dff_out_9);
-
-dff_in_10 <= dff_out_9;			
-dff_map_10:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_10, clk=>clk, reset=>reset, q=>dff_out_10);
-
-dff_in_11 <= dff_out_10;			
-dff_map_11:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_11, clk=>clk, reset=>reset, q=>dff_out_11);
-			
-dff_in_12 <= dff_out_11;			
-dff_map_12:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_12, clk=>clk, reset=>reset, q=>dff_out_12);
-			
-dff_in_13 <= dff_out_12;			
-dff_map_13:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_13, clk=>clk, reset=>reset, q=>dff_out_13);
-			
-dff_in_14 <= dff_out_13;			
-dff_map_14:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_14, clk=>clk, reset=>reset, q=>dff_out_14);			
-			
-dff_in_15 <= dff_out_14;			
-dff_map_15:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_15, clk=>clk, reset=>reset, q=>dff_out_15);		
-			
-dff_in_16 <= dff_out_15;			
-dff_map_16:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_16, clk=>clk, reset=>reset, q=>dff_out_16);		
-			
-dff_in_17 <= dff_out_16;			
-dff_map_17:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_17, clk=>clk, reset=>reset, q=>dff_out_17);
-			
-dff_in_18 <= dff_out_17;			
-dff_map_18:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_18, clk=>clk, reset=>reset, q=>dff_out_18);
-			
-dff_in_19 <= dff_out_18;			
-dff_map_19:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_19, clk=>clk, reset=>reset, q=>dff_out_19);
-			
-dff_in_20 <= dff_out_19;			
-dff_map_20:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_20, clk=>clk, reset=>reset, q=>dff_out_20);
-			
-dff_in_21 <= dff_out_20;			
-dff_map_21:	entity work.dff_N(dff_N_bhv)
-			generic map(N=>16)
-			port map(d=>dff_in_21, clk=>clk, reset=>reset, q=>dff_out_21);
-
 -- Adder stage
 
-add_out_0 <=	std_logic_vector(signed(dff_out_0) + signed(dff_out_21));
-add_out_1 <=    std_logic_vector(signed(dff_out_1) + signed(dff_out_20));
-add_out_2 <=    std_logic_vector(signed(dff_out_2) + signed(dff_out_19));
-add_out_3 <=    std_logic_vector(signed(dff_out_3) + signed(dff_out_18));
-add_out_4 <=    std_logic_vector(signed(dff_out_4) + signed(dff_out_17));
-add_out_5 <=    std_logic_vector(signed(dff_out_5) + signed(dff_out_16));
-add_out_6 <=    std_logic_vector(signed(dff_out_6) + signed(dff_out_15));
-add_out_7 <=    std_logic_vector(signed(dff_out_7) + signed(dff_out_14));
-add_out_8 <=    std_logic_vector(signed(dff_out_8) + signed(dff_out_13));
-add_out_9 <=    std_logic_vector(signed(dff_out_9) + signed(dff_out_12));
-add_out_10 <=	std_logic_vector(signed(dff_out_10) + signed(dff_out_11)); 
-			
+adder_stage:	for i in 0 to 10 generate
+	
+	add_out(i) <= std_logic_vector(signed(dff_out(i)) + 
+	signed(dff_out(21-i)));
+	
+end generate adder_stage;
 			
 -- Multiplication stages
+mul_stage: for i in 0 to 11 generate
+	
+	last_mul: if i = 11 generate
+		mul_out(i) <= std_logic_vector(signed(dff_out(i-1)) * 
+		signed(c(i)));
+	end generate last_mul;
+		
+	other_mul: if i < 11 generate
+		mul_out(i) <= std_logic_vector(signed(add_out(i)) * 
+		signed(c(i))); 
+	end generate other_mul;
+	
+end generate mul_stage;
 
-mul_out_0 <= std_logic_vector(signed(add_out_0) * signed(c0));
-mul_out_1 <= std_logic_vector(signed(add_out_1) * signed(c1));
-mul_out_2 <= std_logic_vector(signed(add_out_2) * signed(c2));
-mul_out_3 <= std_logic_vector(signed(add_out_3) * signed(c3));
-mul_out_4 <= std_logic_vector(signed(add_out_4) * signed(c4));
-mul_out_5 <= std_logic_vector(signed(add_out_5) * signed(c5));
-mul_out_6 <= std_logic_vector(signed(add_out_6) * signed(c6));
-mul_out_7 <= std_logic_vector(signed(add_out_7) * signed(c7));
-mul_out_8 <= std_logic_vector(signed(add_out_8) * signed(c8));
-mul_out_9 <= std_logic_vector(signed(add_out_9) * signed(c9));
-mul_out_10 <= std_logic_vector(signed(add_out_10) * signed(c10));
-mul_out_11 <= std_logic_vector(signed(dff_out_10) * signed(c11));
+-- Registers mapping
+
+reg_gen: for i in 0 to 21 generate
+	
+	dff_0: if i = 0 generate
+		dff_in(i) <= x;
+	end generate dff_0;
+	
+	dff_n: if i > 0 generate
+		dff_in(i) <= dff_out(i-1);
+	end generate dff_n;
+	
+	dff_d:	
+		entity work.dff_N(dff_N_bhv)
+		generic map (N=>16)
+		port map (d=>dff_in(i), clk=>clk, reset=>reset, q=>dff_out(i));
+			
+end generate reg_gen;
 
 -- Final adder stage
 
-add_last <= std_logic_vector(signed(mul_out_0) +	signed(mul_out_1) +
-							signed(mul_out_2) + signed(mul_out_3) +
-							signed(mul_out_4) + signed(mul_out_5) +
-							signed(mul_out_6) + signed(mul_out_7) +
-							signed(mul_out_8) + signed(mul_out_9) +
-							signed(mul_out_10) + signed(mul_out_11));
+add_last <= std_logic_vector(signed(mul_out(0)) + signed(mul_out(1)) +
+							signed(mul_out(2)) + signed(mul_out(3)) +
+							signed(mul_out(4)) + signed(mul_out(5)) +
+							signed(mul_out(6)) + signed(mul_out(7)) +
+							signed(mul_out(8)) + signed(mul_out(9)) +
+							signed(mul_out(10)) + signed(mul_out(11)));
 
 -- Output update
 
-y <= std_logic_vector(shift_right(signed(add_last), 2));
+--y <= std_logic_vector(shift_left(signed(add_last(31 downto 16)), 2));
 
+y <= add_last(31 downto 16);
 	
 end fir_srrc_bhv;

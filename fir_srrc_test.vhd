@@ -43,7 +43,7 @@ signal		test_x	:	std_logic_vector(15 downto 0) := "0000000000000000";
 signal		reset	:	std_logic	:= '1';
 
 -- Output Signals
-signal		test_y		:	std_logic_vector(31 downto 0);	-- DDFS output
+signal		test_y		:	std_logic_vector(15 downto 0);	-- DDFS output
 signal		clk_cycle	:	integer;
 signal		testing		:	boolean := True;
 
