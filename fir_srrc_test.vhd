@@ -43,7 +43,7 @@ signal		test_x	:	std_logic_vector(15 downto 0) := "0000000000000000";
 signal		reset	:	std_logic	:= '1';
 
 -- Output Signals
-signal		test_y		:	std_logic_vector(15 downto 0);	-- DDFS output
+signal		test_y		:	std_logic_vector(18 downto 0);	-- DDFS output
 signal		clk_cycle	:	integer;
 signal		testing		:	boolean := True;
 
@@ -65,7 +65,7 @@ test_proc:	process(clk)
 		when 100 	=>	reset	<= '0';
 		when 400	=>	reset	<= '1';
 		when 460	=>	reset	<= '0';
-		when 600	=>	test_x	<= "0111111111110000";
+		when 600	=>	test_x	<= "0111111111111111";
 		--when 603	=>	test_x	<= "0000000000000000";
 		when (TestLen - 1) => testing <= False;
 		when others => null;

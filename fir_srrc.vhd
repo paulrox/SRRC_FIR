@@ -31,7 +31,7 @@ entity fir_srrc is
 		clk		:	in	std_logic;
 		reset	:	in	std_logic;
 		x		:	in	std_logic_vector(15 downto 0);
-		y 		:	out	std_logic_vector(15 downto 0)
+		y 		:	out	std_logic_vector(18 downto 0)
 	);
 end fir_srrc;
 
@@ -63,15 +63,17 @@ type dff_output_array is array (0 to 21) of std_logic_vector(15 downto 0);
 signal	dff_out		:	dff_output_array;
 
 -- Multiplication stages output lines 
-type mul_out_array is array (0 to 11) of std_logic_vector(31 downto 0);
+type mul_out_array is array (0 to 11) of std_logic_vector(32 downto 0);
 signal	mul_out		:	mul_out_array;
 
 -- Adders output lines
-type add_out_array is array (0 to 10) of std_logic_vector(15 downto 0);
+type add_out_array is array (0 to 10) of std_logic_vector(16 downto 0);
 signal	add_out		:	add_out_array;
 
 -- Last adder output line
-signal	add_last	:	std_logic_vector(31 downto 0);
+signal	add_last	:	std_logic_vector(32 downto 0);
+
+signal shift_out	:	std_logic_vector(32 downto 0);
 
 begin
 
@@ -79,8 +81,8 @@ begin
 
 adder_stage:	for i in 0 to 10 generate
 	
-	add_out(i) <= std_logic_vector(signed(dff_out(i)) + 
-	signed(dff_out(21-i)));
+	add_out(i) <= std_logic_vector(resize(signed(dff_out(i)), 17) + 
+	resize(signed(dff_out(21-i)), 17));
 	
 end generate adder_stage;
 			
@@ -88,7 +90,7 @@ end generate adder_stage;
 mul_stage: for i in 0 to 11 generate
 	
 	last_mul: if i = 11 generate
-		mul_out(i) <= std_logic_vector(signed(dff_out(i-1)) * 
+		mul_out(i) <= std_logic_vector(resize(signed(dff_out(i-1)), 17) * 
 		signed(c(i)));
 	end generate last_mul;
 		
@@ -129,8 +131,9 @@ add_last <= std_logic_vector(signed(mul_out(0)) + signed(mul_out(1)) +
 
 -- Output update
 
---y <= std_logic_vector(shift_left(signed(add_last(31 downto 16)), 2));
+shift_out <= std_logic_vector(shift_right(signed(add_last), 14));
+y <= shift_out(18 downto 0);
 
-y <= add_last(31 downto 16);
+--y <= add_last(32 downto 15);
 	
 end fir_srrc_bhv;
