@@ -14,7 +14,9 @@
 --
 -------------------------------------------------------------------------------
 --
--- Description : 
+-- Description : VHDL implementation of a Square Root Raised Cosine (SRRC) FIR
+--				 filter. In particular, the architecture follows the
+--				 specification of a generic symmetrical form FIR filter.
 --
 -------------------------------------------------------------------------------
 
@@ -28,10 +30,10 @@ use IEEE.numeric_std.all;
 
 entity fir_srrc is
 	port(
-		clk		:	in	std_logic;
-		reset	:	in	std_logic;
-		x		:	in	std_logic_vector(15 downto 0);
-		y 		:	out	std_logic_vector(18 downto 0)
+		clk		:	in	std_logic;	-- Clock signal
+		reset	:	in	std_logic;  -- Reset signal
+		x		:	in	std_logic_vector(15 downto 0);	-- Input signal
+		y 		:	out	std_logic_vector(18 downto 0)	-- Output signal
 	);
 end fir_srrc;
 
@@ -39,7 +41,8 @@ end fir_srrc;
 
 architecture fir_srrc_bhv of fir_srrc is
 
--- Coefficients definition
+-- Coefficients definition (Using the symmetrical form we just need half of the
+-- coefficients)
 type coeff is array (0 to 11) of signed(15 downto 0);
 constant c		:	coeff := (	to_signed(-271, 16),
 								to_signed(-246, 16),
@@ -70,49 +73,26 @@ signal	mul_out		:	mul_out_array;
 type add_out_array is array (0 to 10) of std_logic_vector(16 downto 0);
 signal	add_out		:	add_out_array;
 
--- Last adder output line
-signal	add_last	:	std_logic_vector(32 downto 0);
-
-signal shift_out	:	std_logic_vector(32 downto 0);
+-- Last adder output line	
+signal	add_last	:	std_logic_vector(32 downto 0); 
 
 begin
-
--- Adder stage
-
-adder_stage:	for i in 0 to 10 generate
 	
-	add_out(i) <= std_logic_vector(resize(signed(dff_out(i)), 17) + 
-	resize(signed(dff_out(21-i)), 17));
-	
-end generate adder_stage;
-			
--- Multiplication stages
-mul_stage: for i in 0 to 11 generate
-	
-	last_mul: if i = 11 generate
-		mul_out(i) <= std_logic_vector(resize(signed(dff_out(i-1)), 17) * 
-		signed(c(i)));
-	end generate last_mul;
-		
-	other_mul: if i < 11 generate
-		mul_out(i) <= std_logic_vector(signed(add_out(i)) * 
-		signed(c(i))); 
-	end generate other_mul;
-	
-end generate mul_stage;
-
--- Registers mapping
+-- Registers declarations and mappings.
 
 reg_gen: for i in 0 to 21 generate
 	
+	-- First register
 	dff_0: if i = 0 generate
 		dff_in(i) <= x;
 	end generate dff_0;
 	
+	-- Other registers
 	dff_n: if i > 0 generate
 		dff_in(i) <= dff_out(i-1);
 	end generate dff_n;
 	
+	-- Mapping for a generic register
 	dff_d:	
 		entity work.dff_N(dff_N_bhv)
 		generic map (N=>16)
@@ -120,20 +100,52 @@ reg_gen: for i in 0 to 21 generate
 			
 end generate reg_gen;
 
+-- Adder stages. The first adder takes as input the filter input and the output
+-- of the first register. The others have both inputs from the registers.
+
+adder_stage:	for i in 0 to 10 generate
+	
+	first_add: if i = 0 generate
+		add_out(i) <= std_logic_vector(resize(signed(x), 17) + 
+			resize(signed(dff_out(21-i)), 17));
+	end generate first_add;
+	
+	other_add: if i > 0 generate
+		add_out(i) <= std_logic_vector(resize(signed(dff_out(i-1)), 17) + 
+			resize(signed(dff_out(21-i)), 17));
+	end generate other_add;
+	
+end generate adder_stage;
+			
+-- Multiplication stages. We have to distinguish the first 10 multiplications
+-- and the last one becouse it takes directly the output of the register as
+-- input.
+
+mul_stage: for i in 0 to 11 generate
+	
+	
+	other_mul: if i < 11 generate
+		mul_out(i) <= std_logic_vector(signed(add_out(i))*c(i)); 
+	end generate other_mul;
+	
+	last_mul: if i = 11 generate
+		mul_out(i) <= std_logic_vector(resize(signed(dff_out(i-1)),17)*c(i));
+	end generate last_mul;
+	
+end generate mul_stage;
+
 -- Final adder stage
 
 add_last <= std_logic_vector(signed(mul_out(0)) + signed(mul_out(1)) +
-							signed(mul_out(2)) + signed(mul_out(3)) +
-							signed(mul_out(4)) + signed(mul_out(5)) +
-							signed(mul_out(6)) + signed(mul_out(7)) +
-							signed(mul_out(8)) + signed(mul_out(9)) +
-							signed(mul_out(10)) + signed(mul_out(11)));
+							 signed(mul_out(2)) + signed(mul_out(3)) +
+							 signed(mul_out(4)) + signed(mul_out(5)) +
+							 signed(mul_out(6)) + signed(mul_out(7)) +
+							 signed(mul_out(8)) + signed(mul_out(9)) +
+							 signed(mul_out(10)) + signed(mul_out(11)));
 
 -- Output update
 
-shift_out <= std_logic_vector(shift_right(signed(add_last), 14));
-y <= shift_out(18 downto 0);
+y <= add_last(32 downto 14);
 
---y <= add_last(32 downto 15);
 	
 end fir_srrc_bhv;
