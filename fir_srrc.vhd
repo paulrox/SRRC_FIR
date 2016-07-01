@@ -20,14 +20,11 @@
 --
 -------------------------------------------------------------------------------
 
---{{ Section below this comment is automatically maintained
---   and may be overwritten
---{entity {fir_srrc} architecture {fir_srrc_bhv}}
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
 
+-- Entity Description
 entity fir_srrc is
 	port(
 		clk		:	in	std_logic;	-- Clock signal
@@ -37,8 +34,7 @@ entity fir_srrc is
 	);
 end fir_srrc;
 
---}} End of automatically maintained section
-
+-- Architecture Description
 architecture fir_srrc_bhv of fir_srrc is
 
 -- Coefficients definition (Using the symmetrical form we just need half of the
