@@ -96,6 +96,12 @@ reg_gen: for i in 0 to 21 generate
 			
 end generate reg_gen;
 
+	-- Output register
+oreg_map:
+	entity work.dff_N(dff_N_bhv)
+	generic map (N=>19)
+	port map (d=>add_last(32 downto 14), clk=>clk, reset=>reset, q=>y);
+
 -- Adder stages. The first adder takes as input the filter input and the output
 -- of the first register. The others have both inputs from the registers.
 
@@ -138,10 +144,5 @@ add_last <= std_logic_vector(signed(mul_out(0)) + signed(mul_out(1)) +
 							 signed(mul_out(6)) + signed(mul_out(7)) +
 							 signed(mul_out(8)) + signed(mul_out(9)) +
 							 signed(mul_out(10)) + signed(mul_out(11)));
-
--- Output update
-
-y <= add_last(32 downto 14);
-
 	
 end fir_srrc_bhv;
